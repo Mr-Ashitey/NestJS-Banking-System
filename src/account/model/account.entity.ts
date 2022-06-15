@@ -17,7 +17,7 @@ export class Account {
   type: AccountType;
 
   @Column({})
-  amount: number;
+  balance: number;
 
   @Column()
   next_of_kin: string;
