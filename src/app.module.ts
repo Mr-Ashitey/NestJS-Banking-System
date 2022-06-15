@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
         synchronize: true,
       }),
     }),
+    AccountModule,
   ],
   controllers: [],
   providers: [],
