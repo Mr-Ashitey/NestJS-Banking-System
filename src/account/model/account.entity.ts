@@ -25,6 +25,12 @@ export class Account {
   @Column()
   statement: string;
 
+  @Column()
+  is_active: boolean;
+
+  //   @Column()
+  //   verification: string;
+
   @ManyToOne(() => User, (user) => user.accounts, { eager: false })
   user: User;
 }

@@ -1,4 +1,4 @@
-import { Account } from 'src/account/account.entity';
+import { Account } from 'src/account/model/account.entity';
 import {
   Column,
   Entity,
@@ -28,9 +28,6 @@ export class User {
 
   @Column({ type: 'date' })
   date_of_birth: string;
-
-  // @Column({})
-  // is_active: boolean;
 
   @OneToMany(() => Account, (account) => account.user, { eager: false })
   accounts: Account[];
