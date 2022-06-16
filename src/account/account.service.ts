@@ -8,11 +8,53 @@ import { Account } from './model/account.entity';
 
 @Injectable()
 export class AccountService {
-  private logger = new Logger('AccountService');
+  private logger = new Logger('AccountService', { timestamp: true });
   constructor(
     @InjectRepository(Account)
     private accountsRepository: Repository<Account>,
   ) {}
+
+  // find a user's account
+  async getAccountById(id: string, user: User): Promise<Account> {
+    const account = await this.accountsRepository.findOneBy({
+      id,
+      user,
+    });
+
+    console.log(account, id, user);
+
+    if (!account) {
+      this.logger.error(`Account with id "${id}" not found.`);
+      throw new ConflictException('Account not found');
+    }
+
+    return account;
+  }
+
+  // get all accounts service
+  async getAllUserAccounts(user: User): Promise<Account[]> {
+    // const accounts = await this.accountsRepository.find({
+    //   // relations: ['user'],
+    //   // where: { user },
+    // });
+
+    const query = this.accountsRepository.createQueryBuilder('account');
+    query.where({ user }); // give user accounts owned by current user
+
+    try {
+      const accounts = await query.getMany();
+
+      return accounts;
+    } catch (error) {
+      this.logger.error(
+        `Failed to get all accounts for user "${
+          user.userName
+        }". Data: ${JSON.stringify(user)}`,
+        error.stack,
+      );
+      throw new ConflictException(Utils.extractErrorMessage(error));
+    }
+  }
 
   // create account service
   async createAccount(
@@ -45,5 +87,28 @@ export class AccountService {
       );
       throw new ConflictException(Utils.extractErrorMessage(error));
     }
+  }
+
+  // deposit account service
+  async depositAccount(
+    id: string,
+    amount: number,
+    user: User,
+  ): Promise<object> {
+    const account = await this.getAccountById(id, user);
+
+    console.log(account);
+
+    // account.balance += amount;
+    // account.statement += `${amount} deposited into account.\n`;
+    // await this.accountsRepository.save(account);
+
+    return {
+      account: account,
+      success: 'Account deposited successfully',
+    };
+
+    console.log(account);
+    // account[0].balance = account[0].balance + amount;
   }
 }
