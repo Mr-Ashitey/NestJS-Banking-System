@@ -1,15 +1,30 @@
-import { Body, Controller, Logger, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/auth/user.entity';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { DepositAccountDto } from './dto/deposit-account.dto';
 
 @Controller('account')
 @UseGuards(AuthGuard())
 export class AccountController {
   private logger = new Logger('AccountController');
   constructor(private accountService: AccountService) {}
+
+  @Get()
+  async getAllAccounts(@GetUser() user: User): Promise<object> {
+    this.logger.verbose(`User "${user.userName}" is getting all accounts`);
+    return this.accountService.getAllAccounts(user);
+  }
 
   @Post('create-account')
   async createAccount(
@@ -22,5 +37,23 @@ export class AccountController {
       )}`,
     );
     return this.accountService.createAccount(createAccountDto, user);
+  }
+
+  @Post('/:id/deposit-account')
+  async depositAccount(
+    @Param('id') id: string,
+    @Body() depositAccountDto: DepositAccountDto,
+    @GetUser() user: User,
+  ): Promise<object> {
+    this.logger.verbose(
+      `User "${
+        user.userName
+      }" is depositing into account. Data: ${JSON.stringify(
+        depositAccountDto,
+      )}`,
+    );
+
+    const { amount } = depositAccountDto;
+    return this.accountService.depositAccount(id, amount, user);
   }
 }
