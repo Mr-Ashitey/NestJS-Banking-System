@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEnum, IsNumber, Min } from 'class-validator';
+import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
 import { AccountType } from '../model/account-type.enum';
 
 export class CreateAccountDto {
