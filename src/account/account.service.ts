@@ -15,11 +15,14 @@ export class AccountService {
   async createAccount(createAccountDto: CreateAccountDto) {
     const { account_name, type, next_of_kin } = createAccountDto;
 
-    const number = Math.random().toString(10).substring(2, 30); //16 numbers
-    console.log(number);
+    // const number = Math.random().toString(10).substring(2, 30); //17 numbers
+    const number = Math.floor(
+      10000000000000000 + Math.random() * 90000000000000000,
+    ); //17 numbers
+    // console.log(number);
 
     const task = this.accountsRepository.create({
-      number: 0,
+      number,
       account_name,
       type,
       balance: 0,
