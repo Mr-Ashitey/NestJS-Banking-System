@@ -4,7 +4,6 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/auth/user.entity';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
-import { Account } from './model/account.entity';
 
 @Controller('account')
 @UseGuards(AuthGuard())
