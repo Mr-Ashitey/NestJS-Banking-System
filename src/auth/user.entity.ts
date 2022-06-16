@@ -1,23 +1,28 @@
 import { Account } from 'src/account/model/account.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   OneToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
-  Unique,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-@Unique(['username', 'email'])
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @PrimaryColumn({ name: 'USERNAME' })
-  username: string;
+  @Column()
+  firstName: string;
 
-  @PrimaryColumn({ name: 'EMAIL' })
+  @Column()
+  lastName: string;
+
+  @Column()
+  userName: string;
+
+  @Column({ unique: true })
   email: string;
 
   @Column({})
@@ -27,7 +32,13 @@ export class User {
   phone_no: string;
 
   @Column({ type: 'date' })
-  date_of_birth: string;
+  date_of_birth: Date;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  date_created: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  date_updated: Date;
 
   @OneToMany(() => Account, (account) => account.user, { eager: false })
   accounts: Account[];
