@@ -24,16 +24,21 @@ export class AuthService {
 
   // sign up service
   async signUp(createUserDto: CreateUserDto) {
-    const { username, email, password, phone_no, date_of_birth } =
+    const { firstName, lastName, email, password, phone_no, date_of_birth } =
       createUserDto;
-
-    console.log(username, email, password, phone_no, date_of_birth);
 
     const salt = bcrypt.genSaltSync();
     const hashedPassword = bcrypt.hashSync(password, salt);
 
+    const userName =
+      firstName.substring(0, 1) +
+      lastName +
+      Math.floor(10 + Math.random() * 90);
+
     const user = this.usersRepository.create({
-      username,
+      firstName,
+      lastName,
+      userName,
       email,
       password: hashedPassword,
       phone_no,
@@ -45,12 +50,13 @@ export class AuthService {
 
       return { email, success: 'User created successfully' };
     } catch (error) {
-      // console.log(error);
-      if (error.code === '23505') {
-        throw new ConflictException('Username already exists');
-      } else {
-        throw new InternalServerErrorException();
-      }
+      throw new ConflictException(
+        error.detail
+          .replace('Key', '')
+          .replace('(', '')
+          .replace(')', '')
+          .replace(' ', ''),
+      );
     }
   }
 
