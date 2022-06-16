@@ -7,10 +7,10 @@ export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, type: 'bigint' })
   number: number;
 
-  @Column()
+  @Column({ unique: true })
   account_name: string;
 
   @Column({})
