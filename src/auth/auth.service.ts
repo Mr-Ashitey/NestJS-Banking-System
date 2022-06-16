@@ -11,6 +11,7 @@ import { AuthCredentailDto } from './dto/auth-credential.dto';
 import { User } from './user.entity';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Utils } from 'src/utils';
 
 @Injectable()
 export class AuthService {
@@ -29,15 +30,10 @@ export class AuthService {
     const salt = bcrypt.genSaltSync();
     const hashedPassword = bcrypt.hashSync(password, salt);
 
-    const userName =
-      firstName.substring(0, 1) +
-      lastName +
-      Math.floor(10 + Math.random() * 90);
-
     const user = this.usersRepository.create({
       firstName,
       lastName,
-      userName,
+      userName: Utils.generateUsername(firstName, lastName),
       email,
       password: hashedPassword,
       phone_no,
@@ -49,13 +45,7 @@ export class AuthService {
 
       return { email, success: 'User created successfully' };
     } catch (error) {
-      throw new ConflictException(
-        error.detail
-          .replace('Key', '')
-          .replace('(', '')
-          .replace(')', '')
-          .replace(' ', ''),
-      );
+      throw new ConflictException(Utils.extractErrorMessage(error));
     }
   }
 
