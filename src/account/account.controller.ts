@@ -13,6 +13,7 @@ import { User } from 'src/auth/user.entity';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { DepositAccountDto } from './dto/deposit-account.dto';
+import { Account } from './model/account.entity';
 
 @Controller('account')
 @UseGuards(AuthGuard())
@@ -21,9 +22,9 @@ export class AccountController {
   constructor(private accountService: AccountService) {}
 
   @Get()
-  async getAllAccounts(@GetUser() user: User): Promise<object> {
+  async getAllUserAccounts(@GetUser() user: User): Promise<object> {
     this.logger.verbose(`User "${user.userName}" is getting all accounts`);
-    return this.accountService.getAllAccounts(user);
+    return this.accountService.getAllUserAccounts(user);
   }
 
   @Post('create-account')
@@ -37,6 +38,15 @@ export class AccountController {
       )}`,
     );
     return this.accountService.createAccount(createAccountDto, user);
+  }
+
+  @Get('/:id')
+  getAccountById(
+    @Param('id') id: string,
+    @GetUser() user: User,
+  ): Promise<Account> {
+    this.logger.verbose(`User "${user.userName}" retrieving task "${id}".`);
+    return this.accountService.getAccountById(id, user);
   }
 
   @Post('/:id/deposit-account')
