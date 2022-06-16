@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/auth/user.entity';
 import { Utils } from 'src/utils';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -14,7 +15,10 @@ export class AccountService {
   ) {}
 
   // create account service
-  async createAccount(createAccountDto: CreateAccountDto) {
+  async createAccount(
+    createAccountDto: CreateAccountDto,
+    user: User,
+  ): Promise<object> {
     const { account_name, type, next_of_kin } = createAccountDto;
 
     const account = this.accountsRepository.create({
@@ -25,19 +29,20 @@ export class AccountService {
       next_of_kin,
       statement: '',
       is_active: false,
+      user,
     });
 
     try {
       await this.accountsRepository.save(account);
 
-      return account;
+      return { account, success: 'Account created successfully' };
     } catch (error) {
-      // this.logger.error(
-      //   `Failed to create a task for user "${
-      //     // user.username
-      //   }". Data: ${JSON.stringify(createAccountDto)}`,
-      //   error.stack,
-      // );
+      this.logger.error(
+        `Failed to create a task for user "${
+          user.userName
+        }". Data: ${JSON.stringify(createAccountDto)}`,
+        error.stack,
+      );
       throw new ConflictException(Utils.extractErrorMessage(error));
     }
   }
