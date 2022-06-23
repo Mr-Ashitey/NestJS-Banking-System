@@ -16,12 +16,17 @@ export class AccountService {
 
   // find a user's account
   async getAccountById(id: string, user: User): Promise<Account> {
-    const account = await this.accountsRepository.findOneBy({
-      id,
-      user,
+    const account = await this.accountsRepository.findOne({
+      // relations: {
+      //   user: true,
+      // },
+      where: {
+        id,
+        user: {
+          id: user.id,
+        },
+      },
     });
-
-    console.log(account, id, user);
 
     if (!account) {
       this.logger.error(`Account with id "${id}" not found.`);
@@ -33,16 +38,14 @@ export class AccountService {
 
   // get all accounts service
   async getAllUserAccounts(user: User): Promise<Account[]> {
-    // const accounts = await this.accountsRepository.find({
-    //   // relations: ['user'],
-    //   // where: { user },
-    // });
-
-    const query = this.accountsRepository.createQueryBuilder('account');
-    query.where({ user }); // give user accounts owned by current user
-
     try {
-      const accounts = await query.getMany();
+      const accounts = await this.accountsRepository.find({
+        where: {
+          user: {
+            id: user.id,
+          },
+        },
+      });
 
       return accounts;
     } catch (error) {
@@ -97,14 +100,13 @@ export class AccountService {
   ): Promise<object> {
     const account = await this.getAccountById(id, user);
 
-    console.log(account);
-
-    // account.balance += amount;
-    // account.statement += `${amount} deposited into account.\n`;
-    // await this.accountsRepository.save(account);
+    account.balance += Number(amount);
+    account.statement += `${amount} deposited into account.\n`;
+    await this.accountsRepository.save(account);
 
     return {
-      account: account,
+      id: account.id,
+      amount: account.balance,
       success: 'Account deposited successfully',
     };
 
