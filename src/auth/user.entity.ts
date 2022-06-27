@@ -45,4 +45,7 @@ export class User {
 
   @Column()
   verificationToken: string;
+
+  @Column({ default: false })
+  active: boolean;
 }
