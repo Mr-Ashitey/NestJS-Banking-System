@@ -6,25 +6,34 @@ export enum MailerResponse {
 }
 
 export class Mailer {
+  private email: string;
+  private subject: string;
+  private text: string;
+
+  constructor(email: string, subject: string, text: string) {
+    this.email = email;
+    this.subject = subject;
+    this.text = text;
+  }
   //nodemailer transporter
   transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'techdev68@gmail.com',
-      pass: 'jhqxmgpfjoshmhfb',
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
-  mail_options = {
-    from: '"Banking System GH👻" <aamarh17@gmail.com>', // sender address
-    to: 'madcodein@gmail.com', // list of receivers
-    subject: 'Verify Account Details', // Subject line
-    text: 'We have sent you a verification link at madcodein@gmail.com. Please verify account', // plain text body
-    // html: '<b>Hello world?</b>', // html body
-  };
-
   async sendMail(): Promise<MailerResponse> {
-    const mailerResponse = await this.transporter.sendMail(this.mail_options);
+    const mail_options = {
+      from: '"Banking System GH" <aamarh17@gmail.com>', // sender address
+      to: `${this.email}`, // list of receivers
+      subject: this.subject, // Subject line
+      text: this.text, // plain text body
+      // html: '<b>Hello world?</b>', // html body
+    };
+
+    const mailerResponse = await this.transporter.sendMail(mail_options);
 
     if (mailerResponse.rejected.length == 0) {
       return MailerResponse.SUCCESS;
