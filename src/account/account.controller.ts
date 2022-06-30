@@ -12,7 +12,7 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/auth/user.entity';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
-import { DepositAccountDto } from './dto/deposit-account.dto';
+import { DepositWithdrawAccountDto } from './dto/deposit-withdraw-account.dto';
 import { Account } from './model/account.entity';
 
 @Controller('account')
@@ -52,7 +52,7 @@ export class AccountController {
   @Post('/:id/deposit-account')
   async depositAccount(
     @Param('id') id: string,
-    @Body() depositAccountDto: DepositAccountDto,
+    @Body() depositAccountDto: DepositWithdrawAccountDto,
     @GetUser() user: User,
   ): Promise<object> {
     this.logger.verbose(
@@ -65,5 +65,23 @@ export class AccountController {
 
     const { amount } = depositAccountDto;
     return this.accountService.depositAccount(id, amount, user);
+  }
+
+  @Post('/:id/withdraw-account')
+  async cashWithdrawal(
+    @Param('id') id: string,
+    @Body() withdrawAccountDto: DepositWithdrawAccountDto,
+    @GetUser() user: User,
+  ) {
+    this.logger.verbose(
+      `User "${
+        user.userName
+      }" is withdrawing money from account. Data: ${JSON.stringify(
+        withdrawAccountDto,
+      )}`,
+    );
+
+    const { amount } = withdrawAccountDto;
+    return this.accountService.cashWithdrawal(id, amount, user);
   }
 }

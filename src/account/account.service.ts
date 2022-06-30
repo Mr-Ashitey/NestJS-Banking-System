@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/auth/user.entity';
 import { Utils } from 'src/utils/utils';
@@ -98,19 +103,40 @@ export class AccountService {
   // deposit account service
   async depositAccount(
     id: string,
-    amount: number,
+    amountToDeposit: number,
     user: User,
   ): Promise<object> {
     const account = await this.getAccountById(id, user);
 
-    account.balance += Number(amount);
-    account.statement += `${amount} deposited into account.\n`;
+    account.balance += Number(amountToDeposit);
+    account.statement += `${amountToDeposit} deposited into account.\n`;
     await this.accountsRepository.save(account);
 
     return {
       id: account.id,
       amount: account.balance,
       success: 'Account deposited successfully',
+    };
+  }
+
+  // cash withdrawal service
+  async cashWithdrawal(id: string, amountToWithdraw: number, user: User) {
+    const account = await this.getAccountById(id, user);
+
+    if (account.balance < amountToWithdraw) {
+      throw new ForbiddenException(
+        'You do not have sufficient balance to perform this transaction',
+      );
+    }
+
+    account.balance -= Number(amountToWithdraw);
+    account.statement += `${amountToWithdraw} withdrawn from account.\n`;
+    await this.accountsRepository.save(account);
+
+    return {
+      id: account.id,
+      amount: account.balance,
+      success: 'Cash withdrawal successfully',
     };
   }
 }
