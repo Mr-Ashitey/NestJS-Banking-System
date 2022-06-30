@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { User } from 'src/auth/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { AccountType } from './account-type.enum';
@@ -7,10 +8,10 @@ export class Account {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, type: 'bigint' })
   number: number;
 
-  @Column()
+  @Column({ unique: true })
   account_name: string;
 
   @Column({})
@@ -32,5 +33,6 @@ export class Account {
   //   verification: string;
 
   @ManyToOne(() => User, (user) => user.accounts, { eager: false })
+  @Exclude({ toPlainOnly: true }) //whenever we return a json response we exlcude this field from the exclude the user (toPlainOnly)
   user: User;
 }

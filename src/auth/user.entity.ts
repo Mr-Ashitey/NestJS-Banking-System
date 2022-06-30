@@ -42,4 +42,10 @@ export class User {
 
   @OneToMany(() => Account, (account) => account.user, { eager: false })
   accounts: Account[];
+
+  @Column()
+  verificationToken: string;
+
+  @Column({ default: false })
+  active: boolean;
 }
