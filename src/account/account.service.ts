@@ -37,7 +37,7 @@ export class AccountService {
   }
 
   // get all accounts service
-  async getAllUserAccounts(user: User): Promise<Account[]> {
+  async getAllUserAccounts(user: User): Promise<object> {
     try {
       const accounts = await this.accountsRepository.find({
         where: {
@@ -47,6 +47,9 @@ export class AccountService {
         },
       });
 
+      if (accounts.length == 0) {
+        return { message: 'No account created' };
+      }
       return accounts;
     } catch (error) {
       this.logger.error(
@@ -109,8 +112,5 @@ export class AccountService {
       amount: account.balance,
       success: 'Account deposited successfully',
     };
-
-    console.log(account);
-    // account[0].balance = account[0].balance + amount;
   }
 }
