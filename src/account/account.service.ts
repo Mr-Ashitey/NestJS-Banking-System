@@ -2,6 +2,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +10,7 @@ import { User } from 'src/auth/user.entity';
 import { Utils } from 'src/utils/utils';
 import { Repository } from 'typeorm';
 import { CreateAccountDto } from './dto/create-account.dto';
+import { GetBalanceFilterDto } from './dto/get-balance-filter.dto';
 import { Account } from './model/account.entity';
 
 @Injectable()
@@ -138,5 +140,44 @@ export class AccountService {
       amount: account.balance,
       success: 'Cash withdrawal successfully',
     };
+  }
+
+  // balance enquiry
+  async balanceEnquiry(filterDto: GetBalanceFilterDto, user: User) {
+    const { account_id } = filterDto;
+    console.log(account_id);
+    const query = this.accountsRepository.createQueryBuilder('account');
+
+    query.where({ user });
+
+    try {
+      if (filterDto.account_id) {
+        query.andWhere('id = :account_id', { account_id });
+        const account = await query.getOne();
+
+        return {
+          id: account.id,
+          balance: account.balance,
+        };
+      }
+
+      const accounts = await query.getMany();
+
+      const output = {};
+      accounts.forEach((account) => {
+        output[`${account.account_name}`] = account.balance;
+      });
+
+      return { account_balances: output };
+    } catch (error) {
+      this.logger.error(
+        `Failed to account balance for user "${
+          user.email
+        }". Filters: ${JSON.stringify(filterDto)}`,
+        error.stack,
+      );
+
+      throw new InternalServerErrorException('Error getting account balance.');
+    }
   }
 }

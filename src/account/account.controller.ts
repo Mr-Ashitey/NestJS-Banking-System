@@ -5,6 +5,7 @@ import {
   Logger,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -13,6 +14,7 @@ import { User } from 'src/auth/user.entity';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { DepositWithdrawAccountDto } from './dto/deposit-withdraw-account.dto';
+import { GetBalanceFilterDto } from './dto/get-balance-filter.dto';
 import { Account } from './model/account.entity';
 
 @Controller('account')
@@ -25,6 +27,20 @@ export class AccountController {
   async getAllUserAccounts(@GetUser() user: User): Promise<object> {
     this.logger.verbose(`User "${user.userName}" is getting all accounts`);
     return this.accountService.getAllUserAccounts(user);
+  }
+
+  @Get('balance')
+  balanceEnquiry(
+    @Query() filterDto: GetBalanceFilterDto,
+    @GetUser() user: User,
+  ) {
+    this.logger.verbose(
+      `User "${
+        user.userName
+      }" is requesting for account balance. Data: ${JSON.stringify(user.id)}`,
+    );
+
+    return this.accountService.balanceEnquiry(filterDto, user);
   }
 
   @Post('create-account')
@@ -45,7 +61,7 @@ export class AccountController {
     @Param('id') id: string,
     @GetUser() user: User,
   ): Promise<Account> {
-    this.logger.verbose(`User "${user.userName}" retrieving task "${id}".`);
+    this.logger.verbose(`User "${user.userName}" retrieving account "${id}".`);
     return this.accountService.getAccountById(id, user);
   }
 
